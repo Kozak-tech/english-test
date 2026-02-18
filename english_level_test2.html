@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Level Test</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f0f4f8; padding: 20px; }
+  #test-container { background: white; padding: 25px; border-radius: 12px; max-width: 650px; margin: auto; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+  h2 { margin-bottom: 20px; color: #333; }
+  .option { display: block; margin: 10px 0; padding: 12px 20px; font-size: 16px; border-radius: 8px; border: 2px solid #007BFF; background: white; cursor: pointer; transition: all 0.2s; }
+  .option:hover { background: #007BFF; color: white; transform: translateY(-2px); }
+  #next-btn { display: none; margin-top: 20px; padding: 12px 25px; font-size: 16px; border: none; border-radius: 8px; background: #28a745; color: white; cursor: pointer; transition: all 0.2s; }
+  #next-btn:hover { background: #218838; }
+  #progress-container { background: #e0e0e0; border-radius: 8px; height: 20px; margin-bottom: 20px; overflow: hidden; }
+  #progress-bar { height: 100%; width: 0%; background: #007BFF; transition: width 0.3s; }
+</style>
+</head>
+<body>
+
+<div id="test-container">
+  <div id="progress-container"><div id="progress-bar"></div></div>
+  <h2 id="question"></h2>
+  <div id="options"></div>
+  <button id="next-btn" onclick="nextQuestion()">Next</button>
+</div>
+
+<script>
+// Питання тесту
+const questionsOriginal = [
+  {q:"I ___ a student.", options:["am","is","are","be"], answer:"am", level:"A1"},
+  {q:"She ___ my friend.", options:["is","am","are","be"], answer:"is", level:"A1"},
+  {q:"They ___ in the park.", options:["are","is","am","be"], answer:"are", level:"A1"},
+  {q:"I ___ like pizza.", options:["do","does","did","doing"], answer:"do", level:"A1"},
+  {q:"We ___ happy today.", options:["are","is","am","be"], answer:"are", level:"A1"},
+  {q:"I have ___ apple.", options:["an","a","the","some"], answer:"an", level:"A2"},
+  {q:"He goes to school ___ bus.", options:["by","on","with","at"], answer:"by", level:"A2"},
+  {q:"I like ___ music.", options:["listening","listen","listened","to listen"], answer:"listening", level:"A2"},
+  {q:"She can ___ very well.", options:["sing","sings","singing","sang"], answer:"sing", level:"A2"},
+  {q:"I ___ never been to London.", options:["have","has","had","having"], answer:"have", level:"A2"},
+  {q:"I will call you when I ___ home.", options:["get","got","gets","getting"], answer:"get", level:"B1"},
+  {q:"If I ___ more time, I would travel.", options:["had","have","has","having"], answer:"had", level:"B1"},
+  {q:"She prefers tea ___ coffee.", options:["to","than","over","from"], answer:"to", level:"B1"},
+  {q:"He said he ___ busy yesterday.", options:["was","is","be","being"], answer:"was", level:"B1"},
+  {q:"I am looking forward ___ your reply.", options:["to","for","at","on"], answer:"to", level:"B1"},
+  {q:"Hardly ___ he arrived when it started raining.", options:["had","has","have","having"], answer:"had", level:"B2"},
+  {q:"She suggested ___ earlier.", options:["leaving","leave","to leave","left"], answer:"leaving", level:"B2"},
+  {q:"No sooner ___ I finished than the phone rang.", options:["had","have","has","having"], answer:"had", level:"B2"},
+  {q:"I wish I ___ more money.", options:["had","have","has","having"], answer:"had", level:"B2"},
+  {q:"It’s high time you ___ to bed.", options:["went","go","gone","going"], answer:"went", level:"B2"},
+  {q:"Not only ___ she smart, but also very kind.", options:["is","was","be","are"], answer:"is", level:"C1"},
+  {q:"He behaves as if he ___ the boss.", options:["were","was","is","be"], answer:"were", level:"C1"},
+  {q:"Scarcely ___ the meeting started when the fire alarm rang.", options:["had","have","has","having"], answer:"had", level:"C1"},
+  {q:"She would have come if she ___ invited.", options:["had been","was","is","been"], answer:"had been", level:"C1"},
+  {q:"I would rather you ___ here tomorrow.", options:["were","was","be","are"], answer:"were", level:"C1"}
+];
+
+// Функція для випадкового сортування
+function shuffle(array) {
+  for(let i = array.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+// Використовуємо випадкові питання
+let questions = shuffle([...questionsOriginal]);
+let currentQuestion = 0;
+let score = 0;
+let selectedAnswer = "";
+
+// Підрахунок балів
+function getPoints(level) {
+  if(level === "A1" || level === "A2") return 1;
+  if(level === "B1" || level === "B2") return 2;
+  if(level === "C1" || level === "C2") return 3;
+  return 0;
+}
+
+// Відображення питання
+function showQuestion() {
+  selectedAnswer = "";
+  const q = questions[currentQuestion];
+  document.getElementById("question").textContent = `Q${currentQuestion+1}: ${q.q}`;
+  const optionsDiv = document.getElementById("options");
+  optionsDiv.innerHTML = "";
+  q.options.forEach(opt => {
+    const button = document.createElement("button");
+    button.textContent = opt;
+    button.className = "option";
+    button.onclick = () => selectAnswer(opt, button);
+    optionsDiv.appendChild(button);
+  });
+  document.getElementById("next-btn").style.display = "none";
+  updateProgress();
+}
+
+// Обробка вибору відповіді
+function selectAnswer(answer, button) {
+  selectedAnswer = answer;
+  Array.from(document.getElementsByClassName("option")).forEach(btn => {
+    btn.style.borderColor = "#ccc";
+  });
+  button.style.borderColor = "#28a745";
+  document.getElementById("next-btn").style.display = "inline-block";
+}
+
+// Наступне питання
+function nextQuestion() {
+  const q = questions[currentQuestion];
+  if(selectedAnswer === q.answer) {
+    score += getPoints(q.level);
+  }
+  currentQuestion++;
+  if(currentQuestion < questions.length) {
+    showQuestion();
+  } else {
+    showResult();
+  }
+}
+
+// Прогрес-бар
+function updateProgress() {
+  const percent = ((currentQuestion) / questions.length) * 100;
+  document.getElementById("progress-bar").style.width = percent + "%";
+}
+
+// Відображення результату
+function showResult() {
+  let level = "";
+  if(score <= 10) level = "A1 (Beginner)";
+  else if(score <= 15) level = "A2 (Elementary)";
+  else if(score <= 20) level = "B1 (Intermediate)";
+  else if(score <= 25) level = "B2 (Upper-Intermediate)";
+  else level = "C1–C2 (Advanced)";
+  
+  document.getElementById("test-container").innerHTML = `
+    <h2>Test Completed!</h2>
+    <p>Your score: ${score} points</p>
+    <p>Your English level: <strong>${level}</strong></p>
+  `;
+}
+
+// Старт тесту
+showQuestion();
+</script>
+
+</body>
+</html>

@@ -2,8 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
-<!-- ДОДАНО: підтримка мобільних пристроїв -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>English Level Test</title>
@@ -24,6 +22,45 @@ border-radius:8px;
 box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
+/* Start screen */
+#startScreen h2{ margin-top:0; }
+#startScreen input{
+display:block;
+width:100%;
+box-sizing:border-box;
+margin:10px 0;
+padding:12px;
+font-size:16px;
+border:1px solid #ccc;
+border-radius:6px;
+}
+
+#startBtn{
+display:block;
+width:100%;
+box-sizing:border-box;
+margin-top:12px;
+padding:12px;
+font-size:16px;
+cursor:pointer;
+border:none;
+border-radius:6px;
+background:#4c7dff;
+color:white;
+}
+
+#startBtn:disabled{
+opacity:0.6;
+cursor:not-allowed;
+}
+
+#startHint{
+font-size:13px;
+color:#666;
+margin-top:8px;
+}
+
+/* Test */
 .option{
 display:block;
 width:100%;
@@ -32,16 +69,25 @@ padding:12px;
 font-size:16px;
 cursor:pointer;
 }
-
 </style>
 </head>
 <body>
 
 <div class="container">
 
-<h2 id="question"></h2>
+<!-- Page 1: Start screen -->
+<div id="startScreen">
+  <h2>English Level Test</h2>
+  <p>Enter your details to start:</p>
+  <input id="studentName" type="text" placeholder="Student name" autocomplete="name" />
+  <input id="studentPhone" type="tel" placeholder="Phone number" autocomplete="tel" inputmode="tel" />
+  <button id="startBtn" type="button" disabled>Start test</button>
+  <div id="startHint">Fill in both fields to enable the Start button.</div>
+</div>
 
-<div id="answers"></div>
+<!-- Page 2: Test screen -->
+<h2 id="question" style="display:none;"></h2>
+<div id="answers" style="display:none;"></div>
 
 </div>
 
@@ -108,9 +154,9 @@ function showQuestion(){
 
 let q = shuffledQuestions[index]
 
-// Нумерація + питання
-document.getElementById("question").innerText =
-"Question " + (index+1) + " / " + shuffledQuestions.length + "\n" + q.q
+/* FIX: real line break using <br> + innerHTML */
+document.getElementById("question").innerHTML =
+"Question " + (index+1) + " / " + shuffledQuestions.length + "<br>" + q.q
 
 let answers = document.getElementById("answers")
 answers.innerHTML = ""
@@ -163,7 +209,29 @@ document.querySelector(".container").innerHTML = `
 
 }
 
-showQuestion()
+/* Start screen logic */
+
+const nameInput = document.getElementById("studentName")
+const phoneInput = document.getElementById("studentPhone")
+const startBtn = document.getElementById("startBtn")
+
+function updateStartBtn(){
+  const n = nameInput.value.trim()
+  const p = phoneInput.value.trim()
+  startBtn.disabled = !(n.length > 0 && p.length > 0)
+}
+
+nameInput.addEventListener("input", updateStartBtn)
+phoneInput.addEventListener("input", updateStartBtn)
+
+startBtn.onclick = function(){
+
+  document.getElementById("startScreen").style.display = "none"
+  document.getElementById("question").style.display = "block"
+  document.getElementById("answers").style.display = "block"
+
+  showQuestion()
+}
 
 </script>
 

@@ -214,10 +214,31 @@ else if(score <= 20) level = "B1 Intermediate"
 else if(score <= 25) level = "B2 Upper Intermediate"
 else level = "C1 Advanced"
 
+// Build Telegram share link (no tokens; works on GitHub Pages)
+const studentNameValue = (document.getElementById("studentName")?.value || "").trim()
+const studentPhoneValue = (document.getElementById("studentPhone")?.value || "").trim()
+
+const shareText =
+  (studentNameValue ? studentNameValue : "Student") + (studentPhoneValue ? (" | Phone: " + studentPhoneValue) : "") + "\n" +
+  "Your score: " + score + "\n" +
+  "Your level: " + level + "\n" +
+  "Test: " + window.location.href
+
+const telegramShareUrl =
+  "https://t.me/share/url?url=" + encodeURIComponent(window.location.href) +
+  "&text=" + encodeURIComponent(shareText)
+
 document.querySelector(".container").innerHTML = `
 <h2>Test completed</h2>
+<p>${studentNameValue ? ("<b>" + studentNameValue + "</b>") : "<b>Student</b>"}</p>
+${studentPhoneValue ? ("<p>Phone: " + studentPhoneValue + "</p>") : ""}
 <p>Your score: ${score}</p>
 <p>Your level: <b>${level}</b></p>
+
+<a href="${telegramShareUrl}" target="_blank" rel="noopener noreferrer"
+   style="display:block;text-align:center;margin-top:14px;padding:12px;border-radius:6px;background:#229ED9;color:#fff;text-decoration:none;">
+  Send to Telegram
+</a>
 `
 
 }
